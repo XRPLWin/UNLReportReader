@@ -2,10 +2,11 @@
 
 namespace XRPLWin\UNLReportParser;
 
+
 /**
- * UNL Report Parser for Xahau
+ * UNL Report Entry parser for Xahau
  */
-class UNLReportParser
+class Entry
 {
   
 }
