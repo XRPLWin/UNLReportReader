@@ -74,78 +74,71 @@ class Manager
       $flagLedger = UNLReportFlagLedger::next($flagLedger);
     }
     unset($flagLedger);
+    
     $batch_chunks = \array_chunk($promises,$this->async_batch_limit,true);
     unset($promises);
 
     foreach($batch_chunks as $batch_chunk) {
-
       $responses = \GuzzleHttp\Promise\Utils::unwrap($batch_chunk); //this throws ConnectException
-
       foreach($responses as $x => $response) {
         $objects[$x]->fill($response);
       }
     }
+
     unset($batch_chunks);
 
     $final = [];
     foreach($objects as $ledgerIndex => $singleLedgerInformation) {
-      //$final[$k] = $singleLedgerInformation->result();
       $singleLedgerInformation = $singleLedgerInformation->finalResult();
-      $final[$ledgerIndex]['hash'] = $this->findActiveValidatorEntryHash($singleLedgerInformation);
-      $final[$ledgerIndex]['data'] = [];
-    }
-    unset($objects);
-
-    # 2. Fetch ledger entries (batched)
-
-    $batch_chunks = \array_chunk($final,$this->async_batch_limit,true);
-    foreach($batch_chunks as $batch_chunk) {
-      $promises = $objects = [];
-      foreach($batch_chunk as $flagLedger => $data) {
-
-        if($data['hash'] === null)
-          continue;
-
-        $objects[$flagLedger] = $this->getNewClient()->api('ledger_entry')->params([
-          'ledger_index' => ($flagLedger+1),
-          'index' => $data['hash'],
-        ]);
-        $promises[$flagLedger] = $objects[$flagLedger]->requestAsync();
-
-      }
-
-      $responses = \GuzzleHttp\Promise\Utils::unwrap($promises); //this throws ConnectException
-      foreach($responses as $flagLedger => $response) {
-        $final[$flagLedger]['data'] = new Entry($objects[$flagLedger]->fill($response)->finalResult());
-      }
+      $final[$ledgerIndex] = [
+        'importvlkey' => $this->findImportVLKeyEntryHash($singleLedgerInformation),
+        'validators' => $this->findActiveValidatorEntryHash($singleLedgerInformation),
+      ];
     }
     return $final;
   }
 
-  /**
-   * Return significant ImportVLKey_PublicKey and ActiveValidatorEntryHash
-   * @return array [ImportVLKey_PublicKey => ?string, ActiveValidatorEntryHash => ?string]
-   */
-  private function findActiveValidatorEntryHash(\stdClass $data): ?string
+  private function findImportVLKeyEntryHash(\stdClass $data): ?string
   {
+    $r = null;
+    $txs = \array_reverse($data->transactions);
     //first TransactionType = UNLReport is the one.
-    foreach($data->transactions as $tx) {
+    foreach($txs as $tx) {
+      if($tx->TransactionType == 'UNLReport' && isset($tx->ImportVLKey)) {
+        $r = $tx->ImportVLKey->PublicKey;
+        break;
+      }
+    }
+    return $r;
+  }
+
+  private function findActiveValidatorEntryHash(\stdClass $data): array
+  {
+    $r = [];
+    $txs = \array_reverse($data->transactions);
+    //first TransactionType = UNLReport is the one.
+    foreach($txs as $tx) {
       if($tx->TransactionType == 'UNLReport' && isset($tx->ActiveValidator)) {
         if(isset($tx->metaData->AffectedNodes)) {
           foreach($tx->metaData->AffectedNodes as $n) {
             if(isset($n->ModifiedNode) && $n->ModifiedNode->LedgerEntryType == 'UNLReport') {
-              return $n->ModifiedNode->LedgerIndex;
+              if(\is_array($n->ModifiedNode->FinalFields->ActiveValidators)) {
+                foreach($n->ModifiedNode->FinalFields->ActiveValidators as $av) {
+                  $r[] = (array)$av->ActiveValidator;
+                }
+              }
             } elseif(isset($n->CreatedNode) && $n->CreatedNode->LedgerEntryType == 'UNLReport') {
-              return $n->CreatedNode->LedgerIndex;
+              if(\is_array($n->CreatedNode->NewFields->ActiveValidators)) {
+                foreach($n->CreatedNode->NewFields->ActiveValidators as $av) {
+                  $r[] = (array)$av->ActiveValidator;
+                }
+              }
             }
           }
         }
+        break;
       }
-      //elseif($tx->TransactionType == 'UNLReport' && isset($tx->ImportVLKey)) {
-      //  $r['ImportVLKey_PublicKey'] = $tx->ImportVLKey->PublicKey;
-      //}
     }
-    return null;
+    return $r;
   }
-
 }
