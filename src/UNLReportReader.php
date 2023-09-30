@@ -39,6 +39,15 @@ class UNLReportReader
   }
 
   /**
+   * Calculates how much flag ledgers passed between two limits.
+   * @return int
+   */
+  public static function calcNumFlagsBetweenLedgers(int $fromFlagLedgerIndex, int $toFlagLedgerIndex): int
+  {
+    return (int)(floor(($toFlagLedgerIndex-$fromFlagLedgerIndex)/256)+1);
+  }
+
+  /**
    * Fetch UNLReport from multiple flag ledgers starting from $ledgerIndex
    * @param int $ledgerIndex
    * @return ?array
@@ -50,6 +59,18 @@ class UNLReportReader
     return isset($r[0]) ? $r[0] : null;
   }
 
+  public function fetchRange(int $fromLedgerIndex, int $toLedgerIndex) //6873340,6873600
+  {
+    return $this->fetchMulti(
+      $fromLedgerIndex,
+      true, 
+      self::calcNumFlagsBetweenLedgers(
+        UNLReportFlagLedger::nextOrCurrent($fromLedgerIndex),
+        UNLReportFlagLedger::nextOrCurrent($toLedgerIndex)
+      )
+    );
+  }
+
   /**
    * Fetch UNLReports from multiple flag ledgers starting from $ledgerIndex
    * @param int $ledgerIndex
@@ -59,6 +80,8 @@ class UNLReportReader
    */
   public function fetchMulti(int $ledgerIndex, bool $forward = true, int $limit = 10): array
   {
+    if($limit < 1)
+      throw new \Exception('Limit can not be zero or less');
     $promises = $objects = [];
 
     $x = 0;
@@ -66,7 +89,7 @@ class UNLReportReader
       if (UNLReportFlagLedger::isFlag($ledgerIndex))
         $flagLedger = UNLReportFlagLedger::prev($ledgerIndex);
       else
-        $flagLedger = UNLReportFlagLedger::nextOrCurrent($ledgerIndex);
+        $flagLedger = UNLReportFlagLedger::prevOrCurrent($ledgerIndex);
     }
     else
       $flagLedger = UNLReportFlagLedger::prev($ledgerIndex);
@@ -103,11 +126,11 @@ class UNLReportReader
     unset($batch_chunks);
 
     $final = [];
-    foreach($objects as $ledgerIndex => $singleLedgerInformation) {
+    foreach($objects as $flagLedger => $singleLedgerInformation) {
       $singleLedgerInformation = $singleLedgerInformation->finalResult();
-      $final[$ledgerIndex] = [
-        'flag_ledger_index' => $ledgerIndex,
-        'report_range' => [($ledgerIndex+1),($ledgerIndex+256)],
+      $final[$flagLedger] = [
+        'flag_ledger_index' => $flagLedger,
+        'report_range' => [($flagLedger+1),($flagLedger+256)],
         'import_vlkey' => $this->findImportVLKeyEntryHash($singleLedgerInformation),
         'active_validators' => $this->findActiveValidatorEntryHash($singleLedgerInformation),
       ];

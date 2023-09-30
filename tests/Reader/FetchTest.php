@@ -119,17 +119,90 @@ final class FetchTest extends TestCase
         $reader = new UNLReportReader('https://xahau-test.net',['async_batch_limit' => 2]);
 
         $response = $reader->fetchMulti(6873341,true,5);
+
         $this->assertIsArray($response);
         $this->assertEquals(5,count($response));
-        $this->assertEquals((6873344+(256*0)), $response[0]['flag_ledger_index']);
+        $this->assertEquals((6873088+(256*0)), $response[0]['flag_ledger_index']);
 
         $this->assertArrayHasKey('flag_ledger_index', $response[0]);
         $this->assertArrayHasKey('import_vlkey', $response[0]);
         $this->assertArrayHasKey('active_validators', $response[0]);
 
-        $this->assertEquals((6873344+(256*1)), $response[1]['flag_ledger_index']);
-        $this->assertEquals((6873344+(256*2)), $response[2]['flag_ledger_index']);
-        $this->assertEquals((6873344+(256*3)), $response[3]['flag_ledger_index']);
-        $this->assertEquals((6873344+(256*4)), $response[4]['flag_ledger_index']);
+        $this->assertEquals((6873088+(256*1)), $response[1]['flag_ledger_index']);
+        $this->assertEquals((6873088+(256*2)), $response[2]['flag_ledger_index']);
+        $this->assertEquals((6873088+(256*3)), $response[3]['flag_ledger_index']);
+        $this->assertEquals((6873088+(256*4)), $response[4]['flag_ledger_index']);
+    }
+
+    public function testFetchRange()
+    {
+        $reader = new UNLReportReader('https://xahau-test.net');
+
+        //at flag+1
+        $response = $reader->fetchRange(6873345,6873345);
+        $this->assertEquals(1,count($response));
+        $this->assertEquals(6873344,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873345,6873600],$response[0]['report_range']);
+        
+        //at flag-1
+        $response = $reader->fetchRange(6873343,6873343);
+        $this->assertEquals(1,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+        
+        //edge1 - edge1
+        $response = $reader->fetchRange(6873344,6873344);
+        $this->assertEquals(1,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+        
+        // middle1 - edge1
+        $response = $reader->fetchRange(6873144,6873344);
+        $this->assertEquals(1,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+        
+        // middle1 - middle1
+        $response = $reader->fetchRange(6873144,6873341);
+        $this->assertEquals(1,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+        
+        //$response = $reader->fetchRange(6873345,6873600);
+
+        //edge1 - edge2
+        $response = $reader->fetchRange(6873344,6873600);
+        $this->assertEquals(2,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+
+        $this->assertEquals(6873344,$response[1]['flag_ledger_index']);
+        $this->assertEquals([6873345,6873600],$response[1]['report_range']);
+        
+        //middle1 - edge2
+        $response = $reader->fetchRange(6873340,6873600);
+        $this->assertEquals(2,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+
+        $this->assertEquals(6873344,$response[1]['flag_ledger_index']);
+        $this->assertEquals([6873345,6873600],$response[1]['report_range']);
+        
+        //middle1 - middle2
+        $response = $reader->fetchRange(6873340,6873500);
+        $this->assertEquals(2,count($response));
+        $this->assertEquals(6873088,$response[0]['flag_ledger_index']);
+        $this->assertEquals([6873089,6873344],$response[0]['report_range']);
+
+        $this->assertEquals(6873344,$response[1]['flag_ledger_index']);
+        $this->assertEquals([6873345,6873600],$response[1]['report_range']);
+  
+        //middle1 - edge3
+        $response = $reader->fetchRange(6873340,6873856);
+        $this->assertEquals(3,count($response));
+
+        //middle1 - middle3
+        $response = $reader->fetchRange(6873340,6873851);
+        $this->assertEquals(3,count($response));
     }
 }

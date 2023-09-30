@@ -165,6 +165,17 @@ array:2 [
 */
 ```
 
+### Fetching multiple reports between ledgers
+
+```PHP
+use XRPLWin\UNLReportReader\UNLReportReader;
+
+$reader = new UNLReportReader('https://xahau-test.net');
+
+//ledger start, ledger end
+$response = $reader->fetchRange(6100000, 6200000); //array
+```
+
 ## Special thanks
 
 [@richardAH](https://github.com/richardAH) - Thank you 🙏 for in-depth explanation and support.  
