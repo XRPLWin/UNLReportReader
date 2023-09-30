@@ -4,17 +4,21 @@ namespace XRPLWin\UNLReportParser;
 
 use XRPLWin\XRPL\Client as XRPLClient;
 use XRPLWin\XRPL\Utilities\UNLReportFlagLedger;
+
 /**
- * UNL Report Manager
+ * UNL Report Reader/Parser
  * Automatically extracts data from Ledger.
  */
-class Manager
+class UNLReportReader
 {
   private array $config = [];
 
   /**
    * Set number of requests that will be sent to node simultaneously.
    * After one batch is sucessfully executed next will begin.
+   * @param $endpoint - eg. https://xahau-test.net
+   * @param $settings - [async_batch_limit = int (default 10)]
+   * @return void
    */
   private int $async_batch_limit = 10;
 
@@ -35,29 +39,37 @@ class Manager
   }
 
   /**
-   * Fetch UNLReports objects from multiple flag ledgers(+1) starting from $ledgerIndex
-   * @param int|string $ledgerIndex - integer or 'validated'
-   * @return ?
+   * Fetch UNLReport from multiple flag ledgers starting from $ledgerIndex
+   * @param int $ledgerIndex
+   * @return ?array
    */
-  public function fetchSingle(int|string $ledgerIndex)
+  public function fetchSingle(int $ledgerIndex): ?array
   {
     $r = $this->fetchMulti( $ledgerIndex, false, 1 );
-    return $r[$ledgerIndex];
+    //$r = \array_values($r);
+    return isset($r[0]) ? $r[0] : null;
   }
 
   /**
-   * Fetch UNLReports objects from multiple flag ledgers(+1) starting from $ledgerIndex
-   * @param int|string $ledgerIndex - integer or 'validated'
+   * Fetch UNLReports from multiple flag ledgers starting from $ledgerIndex
+   * @param int $ledgerIndex
    * @param bool $forward - true: looks up in the future or false: lookup back in history
    * @param int $limit - how much flag ledgers to check
    * @return array [ledger_index => array]
    */
-  public function fetchMulti(int|string $ledgerIndex, bool $forward = true, int $limit = 10): array
+  public function fetchMulti(int $ledgerIndex, bool $forward = true, int $limit = 10): array
   {
     $promises = $objects = [];
 
     $x = 0;
-    $flagLedger = UNLReportFlagLedger::nextOrCurrent($ledgerIndex);
+    if($forward) {
+      if (UNLReportFlagLedger::isFlag($ledgerIndex))
+        $flagLedger = UNLReportFlagLedger::prev($ledgerIndex);
+      else
+        $flagLedger = UNLReportFlagLedger::nextOrCurrent($ledgerIndex);
+    }
+    else
+      $flagLedger = UNLReportFlagLedger::prev($ledgerIndex);
 
     while($x < $limit) {
       $x++;
@@ -71,7 +83,10 @@ class Manager
       ]);
       $promises[$flagLedger] = $objects[$flagLedger]->requestAsync();
 
-      $flagLedger = UNLReportFlagLedger::next($flagLedger);
+      if($forward)
+        $flagLedger = UNLReportFlagLedger::next($flagLedger);
+      else
+        $flagLedger = UNLReportFlagLedger::prev($flagLedger);
     }
     unset($flagLedger);
     
@@ -91,11 +106,13 @@ class Manager
     foreach($objects as $ledgerIndex => $singleLedgerInformation) {
       $singleLedgerInformation = $singleLedgerInformation->finalResult();
       $final[$ledgerIndex] = [
-        'importvlkey' => $this->findImportVLKeyEntryHash($singleLedgerInformation),
-        'validators' => $this->findActiveValidatorEntryHash($singleLedgerInformation),
+        'flag_ledger_index' => $ledgerIndex,
+        'report_range' => [$ledgerIndex+1,($ledgerIndex+256)],
+        'import_vlkey' => $this->findImportVLKeyEntryHash($singleLedgerInformation),
+        'active_validators' => $this->findActiveValidatorEntryHash($singleLedgerInformation),
       ];
     }
-    return $final;
+    return \array_values($final);
   }
 
   private function findImportVLKeyEntryHash(\stdClass $data): ?string

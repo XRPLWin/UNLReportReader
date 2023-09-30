@@ -1,7 +1,7 @@
 {
-    "name": "xrplwin/unlreportparser",
+    "name": "xrplwin/unlreportreader",
     "description": "Fetches and parses UNLReports on Xahau network.",
-    "keywords": ["package", "xahau", "xahaud", "xrp", "xrpl", "composer", "transaction", "tx", "parser", "unl", "dunl", "report"],
+    "keywords": ["package", "php", "unlreport", "xahau", "xahaud", "xrp", "xrpl", "composer", "transaction", "parser", "unl", "dunl", "report"],
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -13,12 +13,12 @@
     "homepage": "https://github.com/XRPLWin",
     "autoload": {
       "psr-4": {
-          "XRPLWin\\UNLReportParser\\": "src/"
+          "XRPLWin\\UNLReportReader\\": "src/"
       }
     },
     "autoload-dev": {
       "psr-4": {
-        "XRPLWin\\UNLReportParser\\Tests\\": "tests/"
+        "XRPLWin\\UNLReportReader\\Tests\\": "tests/"
       }
     },
     "minimum-stability": "dev",
