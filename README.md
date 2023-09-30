@@ -14,7 +14,7 @@ This is PHP package where you can provide flag ledger and script will parse and 
 
 ## Installation
 ```
-composer require xrplwin/unlreport-parser
+composer require xrplwin/unlreportreader
 ```
 
 ## Ranges
