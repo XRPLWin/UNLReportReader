@@ -163,5 +163,5 @@ array:2 [
 
 ## Special thanks
 
-[@richardAH](https://github.com/richardAH) - Thank you 🙏 for in-depth explenation.  
+[@richardAH](https://github.com/richardAH) - Thank you 🙏 for in-depth explanation and support.  
 [@angell_denis](https://github.com/richardAH) - Thank you 🙏 for great insight.
