@@ -35,11 +35,11 @@ When fetching ledger index report data, each ledger index % 256 is flag ledger. 
 ## Usage sample
 
 ```PHP
-use XRPLWin\UNLReportParser\UNLReportParser;
+use XRPLWin\UNLReportReader\UNLReportReader;
 
-$parser = new UNLReportParser('https://xahau-test.net');
+$reader = new UNLReportReader('https://xahau-test.net');
 
-$response = $parser->fetchSingle(6873344); //array
+$response = $reader->fetchSingle(6873344); //array
 /*
 array [
     "flag_ledger_index" => 6873344
@@ -59,12 +59,12 @@ array [
 */
 
 # response below will return report for ledger range: (6873345-256) to 6873344
-$response = $parser->fetchSingle(6873342);
-$response = $parser->fetchSingle(6873343);
-$response = $parser->fetchSingle(6873344); //flag ledger
+$response = $reader->fetchSingle(6873342);
+$response = $reader->fetchSingle(6873343);
+$response = $reader->fetchSingle(6873344); //flag ledger
 # response below will return report for ledger range: 6873345 to (6873344+256)
-$response = $parser->fetchSingle(6873345);
-$response = $parser->fetchSingle(6873346);
+$response = $reader->fetchSingle(6873345);
+$response = $reader->fetchSingle(6873346);
 // ...
 ```
 
@@ -72,13 +72,13 @@ $response = $parser->fetchSingle(6873346);
 This is more optimized way to fetch multiple reports than doing loop and using `fetchSingle()`, since this script batches and uses Promises to asynchronously query node in batches.
 
 ```PHP
-use XRPLWin\UNLReportParser\UNLReportParser;
+use XRPLWin\UNLReportReader\UNLReportReader;
 
-$parser = new UNLReportParser('https://xahau-test.net');
+$reader = new UNLReportReader('https://xahau-test.net');
 
 $forward = true;
 $limit = 2;
-$response = $parser->fetchMulti(6873340, $forward, $limit); //array
+$response = $reader->fetchMulti(6873340, $forward, $limit); //array
 
 //Ledger index "6873340" is between 6873345 and 6873600
 
