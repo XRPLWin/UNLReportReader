@@ -3,21 +3,21 @@
 namespace XRPLWin\XRPLNFTTxMutatationParser\Tests\Parser;
 
 use PHPUnit\Framework\TestCase;
-use XRPLWin\UNLReportParser\UNLReportReader;
+use XRPLWin\UNLReportReader\UNLReportReader;
 
 final class FetchTest extends TestCase
 {
     public function testFetchSingle()
     {
-        $parser = new UNLReportReader('https://xahau-test.net');
+        $reader = new UNLReportReader('https://xahau-test.net');
 
         //docs sample:
-        //$response = $parser->fetchMulti(6873340,true,2); 
+        //$response = $reader->fetchMulti(6873340,true,2); 
         //dd($response);
-        //dd($parser->fetchSingle(6873346)['report_range']);
+        //dd($reader->fetchSingle(6873346)['report_range']);
 
         # Exact flag ledger = 6873344 (range: 6873088 to 6873344)
-        $response = $parser->fetchSingle(6873344);
+        $response = $reader->fetchSingle(6873344);
 
         $this->assertIsArray($response);
 
@@ -31,7 +31,7 @@ final class FetchTest extends TestCase
         $this->assertArrayHasKey('active_validators', $response);
 
         # Flag ledger+1 = 6873344 (range: 6873344 to 6873600)
-        $response = $parser->fetchSingle(6873345);
+        $response = $reader->fetchSingle(6873345);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
         $this->assertEquals([6873345,6873600],$response['report_range']);
@@ -40,7 +40,7 @@ final class FetchTest extends TestCase
         $this->assertArrayHasKey('active_validators', $response);
 
         # Flag ledger+100 = 6873600
-        $response = $parser->fetchSingle(6873444);
+        $response = $reader->fetchSingle(6873444);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
         $this->assertEquals(6873344,$response['flag_ledger_index']);
@@ -48,7 +48,7 @@ final class FetchTest extends TestCase
         $this->assertArrayHasKey('active_validators', $response);
 
         # Flag ledger-1 = 6873344
-        $response = $parser->fetchSingle(6873343);
+        $response = $reader->fetchSingle(6873343);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
         $this->assertEquals(6873088,$response['flag_ledger_index']);
@@ -56,7 +56,7 @@ final class FetchTest extends TestCase
         $this->assertArrayHasKey('active_validators', $response);
 
         # Flag ledger-100 = 6873344
-        $response = $parser->fetchSingle(6873244);
+        $response = $reader->fetchSingle(6873244);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
         $this->assertEquals(6873088,$response['flag_ledger_index']);
@@ -66,9 +66,9 @@ final class FetchTest extends TestCase
 
     public function testFetchMultiForward()
     {
-        $parser = new UNLReportReader('https://xahau-test.net');
+        $reader = new UNLReportReader('https://xahau-test.net');
 
-        $response = $parser->fetchMulti(6873344,true,2);
+        $response = $reader->fetchMulti(6873344,true,2);
         
         $this->assertIsArray($response);
         $this->assertEquals(2,count($response));
@@ -88,9 +88,9 @@ final class FetchTest extends TestCase
 
     public function testFetchMultiBackwards()
     {
-        $parser = new UNLReportReader('https://xahau-test.net');
+        $reader = new UNLReportReader('https://xahau-test.net');
 
-        $response = $parser->fetchMulti(6873344,false,3); //flag
+        $response = $reader->fetchMulti(6873344,false,3); //flag
         $this->assertIsArray($response);
         $this->assertEquals(3,count($response));
         $this->assertEquals([6873089,6873344],$response[0]['report_range']);
@@ -98,7 +98,7 @@ final class FetchTest extends TestCase
         $this->assertEquals((6873344-(256*2)), $response[1]['flag_ledger_index']);
         $this->assertEquals((6873344-(256*3)), $response[2]['flag_ledger_index']);
 
-        $response = $parser->fetchMulti(6873343,false,3); //flag-1
+        $response = $reader->fetchMulti(6873343,false,3); //flag-1
         $this->assertIsArray($response);
         $this->assertEquals(3,count($response));
         $this->assertEquals([6872833,6873088],$response[1]['report_range']);
@@ -106,7 +106,7 @@ final class FetchTest extends TestCase
         $this->assertEquals((6873344-(256*2)), $response[1]['flag_ledger_index']);
         $this->assertEquals((6873344-(256*3)), $response[2]['flag_ledger_index']);
 
-        $response = $parser->fetchMulti(6873345,false,3); //flag+1
+        $response = $reader->fetchMulti(6873345,false,3); //flag+1
         $this->assertIsArray($response);
         $this->assertEquals(3,count($response));
         $this->assertEquals((6873344-(256*0)), $response[0]['flag_ledger_index']);
@@ -116,9 +116,9 @@ final class FetchTest extends TestCase
 
     public function testFetchMultiBatched()
     {
-        $parser = new UNLReportReader('https://xahau-test.net',['async_batch_limit' => 2]);
+        $reader = new UNLReportReader('https://xahau-test.net',['async_batch_limit' => 2]);
 
-        $response = $parser->fetchMulti(6873341,true,5);
+        $response = $reader->fetchMulti(6873341,true,5);
         $this->assertIsArray($response);
         $this->assertEquals(5,count($response));
         $this->assertEquals((6873344+(256*0)), $response[0]['flag_ledger_index']);

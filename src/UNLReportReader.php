@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace XRPLWin\UNLReportParser;
+namespace XRPLWin\UNLReportReader;
 
 use XRPLWin\XRPL\Client as XRPLClient;
 use XRPLWin\XRPL\Utilities\UNLReportFlagLedger;
