@@ -1,3 +1,7 @@
+![main workflow](https://github.com/XRPLWin/UNLReportReader/actions/workflows/main.yml/badge.svg)
+[![GitHub license](https://img.shields.io/github/license/XRPLWin/UNLReportReader)](https://github.com/XRPLWin/UNLReportReader/blob/main/LICENSE)
+[![Total Downloads](https://img.shields.io/packagist/dt/xrplwin/unlreportreader.svg?style=flat)](https://packagist.org/packages/xrplwin/unlreportreader)
+
 # UNLReport Reader
 
 Fetches UNLReports on Xahau network.
