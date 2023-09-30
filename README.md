@@ -168,4 +168,4 @@ array:2 [
 ## Special thanks
 
 [@richardAH](https://github.com/richardAH) - Thank you 🙏 for in-depth explanation and support.  
-[@angell_denis](https://github.com/richardAH) - Thank you 🙏 for great insight.
+[@dangell7](https://github.com/dangell7) - Thank you 🙏 for great insight.
