@@ -18,7 +18,7 @@ composer require xrplwin/unlreportreader
 ```
 
 ## Ranges
-When fetching ledger index report data, each ledger index % 256 is flag ledger. **At flag ledger UNLReport is still not applied**, UNLReport is applied from next ledger (next 256 ledgers including last flag ledger). See table below to understand ranges when queriying specific ledger index.
+When fetching ledger index report data, each ledger index % 256 is flag ledger. **At flag ledger UNLReport is still not applied**, UNLReport is applied from next ledger (next 256 ledgers including last flag ledger). See table below to understand ranges when querying specific ledger index.
 
 | Viewing ledger_index | Applied from | Applied to |
 |-|-|-|
