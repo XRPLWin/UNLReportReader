@@ -39,7 +39,7 @@ use XRPLWin\UNLReportReader\UNLReportReader;
 
 $reader = new UNLReportReader('https://xahau-test.net');
 
-$response = $reader->fetchSingle(6873344); //array
+$response = $reader->fetchSingle(6873344); //?array
 /*
 array [
     "flag_ledger_index" => 6873344
@@ -175,6 +175,42 @@ $reader = new UNLReportReader('https://xahau-test.net');
 
 //ledger start, ledger end
 $response = $reader->fetchRange(6100000, 6200000); //array
+```
+
+### Checking ledger edge (incomplete results)
+When checking ledger edge, eg. you requested ledger index that does not yet exists this is how will you check existance:
+
+**For single ledger**
+```PHP
+//this will return null if ledger_index is out of range
+$response = $reader->fetchSingle(9873344);
+if($response === null) {
+  //Incomplete result
+}
+```
+**For multiple ledgers**
+```PHP
+$requested_limit = 10;
+//this will return less results than requested if some or all ledgers are out of range
+$response = $reader->fetchMulti(9873344,true,$requested_limit);
+if(count($response) != $requested_limit) {
+  //Incomplete result
+}
+```
+**For range**
+```PHP
+$fromLedgerIndex = 6100000;
+$toLedgerIndex = 6200000;
+
+//this will give you exact limit that will be sent to ->fetchMulti() method
+$calculated_limit = UNLReportReader::calcNumFlagsBetweenLedgers(
+  UNLReportFlagLedger::nextOrCurrent($fromLedgerIndex),
+  UNLReportFlagLedger::nextOrCurrent($toLedgerIndex)
+);
+$response = $reader->fetchRange($fromLedgerIndex, $toLedgerIndex); //array
+if(count($response) != $calculated_limit) {
+  //Incomplete result
+}
 ```
 
 ## Special thanks

@@ -4,6 +4,7 @@ namespace XRPLWin\UNLReportReader;
 
 use XRPLWin\XRPL\Client as XRPLClient;
 use XRPLWin\XRPL\Utilities\UNLReportFlagLedger;
+use XRPLWin\XRPL\Exceptions\XRPL\NotSuccessException;
 
 /**
  * UNL Report Reader/Parser
@@ -130,6 +131,22 @@ class UNLReportReader
 
     $final = [];
     foreach($objects as $flagLedger => $singleLedgerInformation) {
+
+      $ledgerNotFound = false;
+      if(!$singleLedgerInformation->isSuccess()) {
+        //Check if requested ledger does not exist
+        if(!$singleLedgerInformation->getIsExecutedWithError()) {
+          if(isset($singleLedgerInformation->result()->result->error) && $singleLedgerInformation->result()->result->error == 'lgrNotFound') {
+            $ledgerNotFound = true;
+          }
+        }
+        if(!$ledgerNotFound)
+          throw new \Exception('Unhandled error response from ledger node');
+      }
+
+      if($ledgerNotFound)
+        break;
+      
       $singleLedgerInformation = $singleLedgerInformation->finalResult();
       $final[$flagLedger] = [
         'flag_ledger_index' => $flagLedger,
