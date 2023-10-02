@@ -48,18 +48,21 @@ class UNLReportReader
   }
 
   /**
-   * Fetch UNLReport from multiple flag ledgers starting from $ledgerIndex
+   * Fetch single UNLReport
    * @param int $ledgerIndex
    * @return ?array
    */
   public function fetchSingle(int $ledgerIndex): ?array
   {
     $r = $this->fetchMulti( $ledgerIndex, false, 1 );
-    //$r = \array_values($r);
     return isset($r[0]) ? $r[0] : null;
   }
 
-  public function fetchRange(int $fromLedgerIndex, int $toLedgerIndex) //6873340,6873600
+  /**
+   * Fetch UNLReports between any two ledger indexes
+   * @return array
+   */
+  public function fetchRange(int $fromLedgerIndex, int $toLedgerIndex): array
   {
     return $this->fetchMulti(
       $fromLedgerIndex,
@@ -132,12 +135,16 @@ class UNLReportReader
         'flag_ledger_index' => $flagLedger,
         'report_range' => [($flagLedger+1),($flagLedger+256)],
         'import_vlkey' => $this->findImportVLKeyEntryHash($singleLedgerInformation),
-        'active_validators' => $this->findActiveValidatorEntryHash($singleLedgerInformation),
+        'active_validators' => $this->findActiveValidators($singleLedgerInformation),
       ];
     }
     return \array_values($final);
   }
 
+  /**
+   * Finds single relevant ImportVLKey among transactions is flag ledger.
+   * @return ?string 
+   */
   private function findImportVLKeyEntryHash(\stdClass $data): ?string
   {
     $r = null;
@@ -152,7 +159,11 @@ class UNLReportReader
     return $r;
   }
 
-  private function findActiveValidatorEntryHash(\stdClass $data): array
+  /**
+   * Finds final list of active validators among transactions is flag ledger.
+   * @return array
+   */
+  private function findActiveValidators(\stdClass $data): array
   {
     $r = [];
     $txs = \array_reverse($data->transactions);

@@ -69,12 +69,13 @@ $response = $reader->fetchSingle(6873346);
 ```
 
 ### Fetching multiple reports
-This is more optimized way to fetch multiple reports than doing loop and using `fetchSingle()`, since this script batches and uses Promises to asynchronously query node in batches.
+This is more optimized way to fetch multiple reports than doing loop and using `fetchSingle()`, since this script uses Promises to asynchronously query node in batches, default batch limit is 10 but can be configured manually.
 
 ```PHP
 use XRPLWin\UNLReportReader\UNLReportReader;
 
-$reader = new UNLReportReader('https://xahau-test.net');
+//this will set async batch limit to 5 (down from default 10)
+$reader = new UNLReportReader('https://xahau-test.net',['async_batch_limit' => 5]);
 
 $forward = true;
 $limit = 2;
