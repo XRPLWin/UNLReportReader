@@ -150,6 +150,7 @@ class UNLReportReader
       $singleLedgerInformation = $singleLedgerInformation->finalResult();
       $final[$flagLedger] = [
         'flag_ledger_index' => $flagLedger,
+        'flag_ledger_close_time' => $singleLedgerInformation->close_time,
         'report_range' => [($flagLedger+1),($flagLedger+256)],
         'import_vlkey' => $this->findImportVLKeyEntryHash($singleLedgerInformation),
         'active_validators' => $this->findActiveValidators($singleLedgerInformation),

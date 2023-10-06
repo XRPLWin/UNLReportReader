@@ -43,6 +43,7 @@ $response = $reader->fetchSingle(6873344); //?array
 /*
 array [
     "flag_ledger_index" => 6873344
+    "flag_ledger_close_time" => 748969761
     "report_range" => [6873089,6873344]
     "import_vlkey" => "E1..."
     "active_validators" => array [
@@ -88,6 +89,7 @@ SAMPLE RESPONSE:
 array:2 [
   0 => array:4 [
     "flag_ledger_index" => 6873344
+    "flag_ledger_close_time" => 748969761
     "report_range" => array:2 [
       0 => 6873345
       1 => 6873600
@@ -126,6 +128,7 @@ array:2 [
   ]
   1 => array:4 [
     "flag_ledger_index" => 6873600
+    "flag_ledger_close_time" => 748970540
     "report_range" => array:2 [
       0 => 6873601
       1 => 6873856

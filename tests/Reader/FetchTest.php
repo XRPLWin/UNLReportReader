@@ -22,6 +22,7 @@ final class FetchTest extends TestCase
         $this->assertIsArray($response);
 
         $this->assertArrayHasKey('flag_ledger_index', $response);
+        $this->assertArrayHasKey('flag_ledger_close_time', $response);
         $this->assertArrayHasKey('report_range', $response);
         $this->assertIsArray($response['report_range']);
         $this->assertEquals(6873088,$response['flag_ledger_index']);
@@ -34,6 +35,7 @@ final class FetchTest extends TestCase
         $response = $reader->fetchSingle(6873345);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
+        $this->assertArrayHasKey('flag_ledger_close_time', $response);
         $this->assertEquals([6873345,6873600],$response['report_range']);
         $this->assertEquals(6873344,$response['flag_ledger_index']);
         $this->assertArrayHasKey('import_vlkey', $response);
@@ -43,6 +45,7 @@ final class FetchTest extends TestCase
         $response = $reader->fetchSingle(6873444);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
+        $this->assertArrayHasKey('flag_ledger_close_time', $response);
         $this->assertEquals(6873344,$response['flag_ledger_index']);
         $this->assertArrayHasKey('import_vlkey', $response);
         $this->assertArrayHasKey('active_validators', $response);
@@ -51,6 +54,7 @@ final class FetchTest extends TestCase
         $response = $reader->fetchSingle(6873343);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
+        $this->assertArrayHasKey('flag_ledger_close_time', $response);
         $this->assertEquals(6873088,$response['flag_ledger_index']);
         $this->assertArrayHasKey('import_vlkey', $response);
         $this->assertArrayHasKey('active_validators', $response);
@@ -59,6 +63,7 @@ final class FetchTest extends TestCase
         $response = $reader->fetchSingle(6873244);
         $this->assertIsArray($response);
         $this->assertArrayHasKey('flag_ledger_index', $response);
+        $this->assertArrayHasKey('flag_ledger_close_time', $response);
         $this->assertEquals(6873088,$response['flag_ledger_index']);
         $this->assertArrayHasKey('import_vlkey', $response);
         $this->assertArrayHasKey('active_validators', $response);
